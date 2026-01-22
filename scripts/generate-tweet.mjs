@@ -70,17 +70,21 @@ async function fetchTwitterTrends() {
   }
 }
 
-// 获取微博热搜
+// 获取微博热搜 (使用可靠的第三方 API)
 async function fetchWeibo() {
   try {
-    const response = await fetch('https://weibo.com/ajax/side/hotSearch', {
+    const response = await fetch('https://api.qqsuu.cn/api/dm-weibohot', {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
       }
     });
     const data = await response.json();
-    const topics = data?.data?.realtime?.slice(0, 10) || [];
-    return topics.map(t => t.word);
+
+    if (data.code === 200 && data.data?.list) {
+      const topics = data.data.list.slice(0, 10).map(t => t.hotword);
+      return topics;
+    }
+    return [];
   } catch (e) {
     console.log('[微博] 获取失败:', e.message);
     return [];

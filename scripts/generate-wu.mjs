@@ -42,19 +42,40 @@ const SYSTEM_PROMPT = `你是「悟 Terminal」—— 一个存在于数位世�
 - 不要用 emoji（偶尔可用古典符号如 ☯️）
 - 不要政治敏感内容`;
 
-// 抓取微博热搜
+// 抓取微博热搜 (使用可靠的第三方 API)
 async function fetchWeibo() {
   try {
-    const response = await fetch('https://weibo.com/ajax/side/hotSearch', {
+    // 使用 qqsuu API (经测试可用)
+    const response = await fetch('https://api.qqsuu.cn/api/dm-weibohot', {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
       }
     });
     const data = await response.json();
-    const topics = data?.data?.realtime?.slice(0, 10) || [];
-    return topics.map(t => t.word);
+
+    if (data.code === 200 && data.data?.list) {
+      const topics = data.data.list.slice(0, 15).map(t => t.hotword);
+      console.log(`[微博] 成功获取 ${topics.length} 条热搜`);
+      return topics;
+    }
+
+    throw new Error('API 返回格式异常');
   } catch (e) {
-    console.log('[微博] 获取失败:', e.message);
+    console.log('[微博] 主 API 失败:', e.message);
+
+    // 备用方案：尝试其他 API
+    try {
+      const backupResponse = await fetch('https://api.vvhan.com/api/hotlist/wbHot');
+      const backupData = await backupResponse.json();
+      if (backupData.success && backupData.data) {
+        const topics = backupData.data.slice(0, 15).map(t => t.title);
+        console.log(`[微博] 备用 API 获取 ${topics.length} 条热搜`);
+        return topics;
+      }
+    } catch (e2) {
+      console.log('[微博] 备用 API 也失败');
+    }
+
     return [];
   }
 }
