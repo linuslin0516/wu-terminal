@@ -9,7 +9,6 @@ export default function Navigation() {
   const links = [
     { href: '/', label: '首頁', cmd: 'home' },
     { href: '/archive', label: '歷史', cmd: 'archive' },
-    { href: '/about', label: '關於', cmd: 'about' },
   ]
 
   return (
