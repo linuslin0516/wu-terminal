@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "generate": "node scripts/generate-wu.mjs"
+    "generate": "node scripts/generate-wu.mjs",
+    "tweet": "node scripts/generate-tweet.mjs"
   },
   "dependencies": {
     "next": "14.0.4",
@@ -15,7 +16,8 @@
     "react-dom": "^18.2.0",
     "@anthropic-ai/sdk": "^0.32.1",
     "gray-matter": "^4.0.3",
-    "date-fns": "^3.0.6"
+    "date-fns": "^3.0.6",
+    "dotenv": "^16.3.1"
   },
   "devDependencies": {
     "@types/node": "^20.10.5",

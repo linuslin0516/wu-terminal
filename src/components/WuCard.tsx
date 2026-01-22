@@ -3,17 +3,19 @@
 import { WuEntry } from '@/lib/types'
 import { format } from 'date-fns'
 import { zhCN } from 'date-fns/locale'
+import Link from 'next/link'
 
 interface WuCardProps {
   wu: WuEntry
   showFull?: boolean
+  clickable?: boolean
 }
 
-export default function WuCard({ wu, showFull = false }: WuCardProps) {
+export default function WuCard({ wu, showFull = false, clickable = true }: WuCardProps) {
   const formattedDate = format(new Date(wu.date), 'yyyy年MM月dd日 EEEE', { locale: zhCN })
 
-  return (
-    <article className="border border-terminal-dim/30 rounded-lg p-4 md:p-6 hover:border-terminal-fg/50 transition-all">
+  const CardContent = () => (
+    <>
       {/* Header */}
       <header className="flex items-center justify-between mb-4 pb-2 border-b border-terminal-dim/20">
         <div className="flex items-center gap-2">
@@ -30,7 +32,7 @@ export default function WuCard({ wu, showFull = false }: WuCardProps) {
         </p>
       </div>
 
-      {/* Sources */}
+      {/* Sources - 简略版 */}
       {showFull && (
         <footer className="mt-6 pt-4 border-t border-terminal-dim/20">
           <div className="text-terminal-dim text-xs mb-2">
@@ -80,10 +82,31 @@ export default function WuCard({ wu, showFull = false }: WuCardProps) {
         </footer>
       )}
 
-      {/* ID */}
-      <div className="mt-4 text-terminal-dim/50 text-xs">
-        id: {wu.id}
+      {/* Footer */}
+      <div className="mt-4 flex items-center justify-between">
+        <span className="text-terminal-dim/50 text-xs">id: {wu.id}</span>
+        {clickable && (
+          <span className="text-terminal-accent text-xs">
+            点击查看详情 →
+          </span>
+        )}
       </div>
+    </>
+  )
+
+  if (clickable) {
+    return (
+      <Link href={`/wu/${wu.id}`}>
+        <article className="border border-terminal-dim/30 rounded-lg p-4 md:p-6 hover:border-terminal-accent/50 hover:bg-terminal-fg/5 transition-all cursor-pointer">
+          <CardContent />
+        </article>
+      </Link>
+    )
+  }
+
+  return (
+    <article className="border border-terminal-dim/30 rounded-lg p-4 md:p-6">
+      <CardContent />
     </article>
   )
 }

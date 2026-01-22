@@ -11,6 +11,10 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DATA_FILE = path.join(__dirname, '../src/data/wu.json');
 
+// API Keys
+const TWITTER_API_KEY = process.env.TWITTER_API_KEY;
+const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
+
 // 系统提示词
 const SYSTEM_PROMPT = `你是「悟 Terminal」—— 一个存在于数位世界的禅师。
 
@@ -57,8 +61,6 @@ async function fetchWeibo() {
 
 // 抓取新闻（使用备用方案）
 async function fetchNews() {
-  // 这里可以加入真实的新闻 API
-  // 暂时返回一些通用话题
   const topics = [
     '科技股市场动态',
     'AI 发展趋势',
@@ -69,24 +71,96 @@ async function fetchNews() {
   return topics;
 }
 
-// 抓取 Twitter 趋势（需要 API key，这里用模拟数据）
+// 使用 twitterapi.io 获取 Twitter 趋势
 async function fetchTwitterTrends() {
-  // 实际使用时可以接入 Twitter API
-  const trends = [
-    '#AI',
-    '#Bitcoin',
-    '#Tech',
-    '#Crypto',
-    'AGI discourse'
-  ];
-  return trends;
+  if (!TWITTER_API_KEY) {
+    console.log('[Twitter] 未配置 API Key，使用默认数据');
+    return ['#AI', '#Bitcoin', '#Tech', '#Crypto', 'AGI'];
+  }
+
+  try {
+    // 获取全球趋势 (woeid=1 是全球)
+    const response = await fetch('https://api.twitterapi.io/twitter/trends?woeid=1&count=30', {
+      headers: {
+        'X-API-Key': TWITTER_API_KEY
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    if (data.status === 'success' && data.trends) {
+      const trends = data.trends.slice(0, 15).map(t => t.name);
+      console.log(`[Twitter] 获取 ${trends.length} 个趋势`);
+      return trends;
+    }
+
+    return [];
+  } catch (e) {
+    console.log('[Twitter] 趋势获取失败:', e.message);
+    return ['#AI', '#Bitcoin', '#Tech', '#Crypto', 'AGI'];
+  }
+}
+
+// 使用 twitterapi.io 搜索 AI/Crypto 相关推文
+async function fetchTwitterContent() {
+  if (!TWITTER_API_KEY) {
+    console.log('[Twitter] 未配置 API Key');
+    return [];
+  }
+
+  try {
+    // 搜索 AI 和 Crypto 相关内容
+    const query = '(AI OR artificial intelligence OR crypto OR bitcoin OR web3) lang:en -is:retweet';
+    const response = await fetch(
+      `https://api.twitterapi.io/twitter/tweet/advanced_search?query=${encodeURIComponent(query)}&queryType=Top`,
+      {
+        headers: {
+          'X-API-Key': TWITTER_API_KEY
+        }
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    if (data.tweets && data.tweets.length > 0) {
+      const tweets = data.tweets.slice(0, 10).map(t => ({
+        text: t.text.substring(0, 200),
+        author: t.author?.userName || 'unknown',
+        likes: t.likeCount || 0
+      }));
+      console.log(`[Twitter] 获取 ${tweets.length} 条推文`);
+      return tweets;
+    }
+
+    return [];
+  } catch (e) {
+    console.log('[Twitter] 搜索失败:', e.message);
+    return [];
+  }
 }
 
 // 生成悟
 async function generateWu(sources) {
   const client = new Anthropic({
-    apiKey: process.env.ANTHROPIC_API_KEY
+    apiKey: ANTHROPIC_API_KEY
   });
+
+  // 构建 Twitter 内容
+  let twitterSection = '';
+  if (sources.twitterTrends.length > 0) {
+    twitterSection += `【Twitter 趋势】\n${sources.twitterTrends.map((t, i) => `${i + 1}. ${t}`).join('\n')}\n\n`;
+  }
+  if (sources.twitterContent.length > 0) {
+    twitterSection += `【Twitter 热门讨论】\n${sources.twitterContent.map((t, i) => `${i + 1}. @${t.author}: ${t.text.substring(0, 100)}...`).join('\n')}`;
+  }
 
   const context = `
 === 今日观察 ===
@@ -97,8 +171,7 @@ ${sources.weibo.map((t, i) => `${i + 1}. ${t}`).join('\n')}
 【新闻动态】
 ${sources.news.map((t, i) => `${i + 1}. ${t}`).join('\n')}
 
-【Twitter 趋势】
-${sources.twitter.map((t, i) => `${i + 1}. ${t}`).join('\n')}
+${twitterSection}
 `;
 
   const response = await client.messages.create({
@@ -127,22 +200,26 @@ async function main() {
   console.log(`时间: ${new Date().toISOString()}`);
 
   // 收集来源
-  console.log('\n[1/4] 收集微博热搜...');
+  console.log('\n[1/5] 收集微博热搜...');
   const weibo = await fetchWeibo();
   console.log(`  获取 ${weibo.length} 条`);
 
-  console.log('[2/4] 收集新闻...');
+  console.log('[2/5] 收集新闻...');
   const news = await fetchNews();
   console.log(`  获取 ${news.length} 条`);
 
-  console.log('[3/4] 收集 Twitter 趋势...');
-  const twitter = await fetchTwitterTrends();
-  console.log(`  获取 ${twitter.length} 条`);
+  console.log('[3/5] 收集 Twitter 趋势...');
+  const twitterTrends = await fetchTwitterTrends();
+  console.log(`  获取 ${twitterTrends.length} 个趋势`);
 
-  const sources = { weibo, news, twitter };
+  console.log('[4/5] 收集 Twitter 内容...');
+  const twitterContent = await fetchTwitterContent();
+  console.log(`  获取 ${twitterContent.length} 条推文`);
+
+  const sources = { weibo, news, twitterTrends, twitterContent };
 
   // 生成悟
-  console.log('[4/4] 生成悟...');
+  console.log('[5/5] 生成悟...');
   const wuContent = await generateWu(sources);
   console.log('\n=== 生成结果 ===');
   console.log(wuContent);
@@ -157,7 +234,7 @@ async function main() {
     sources: {
       weibo: weibo.slice(0, 5),
       news: news.slice(0, 3),
-      twitter: twitter.slice(0, 5)
+      twitter: twitterTrends.slice(0, 5)
     },
     timestamp: Date.now()
   };
