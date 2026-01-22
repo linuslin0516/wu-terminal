@@ -2,7 +2,7 @@
 
 import { WuEntry } from '@/lib/types'
 import { format } from 'date-fns'
-import { zhTW } from 'date-fns/locale'
+import { zhCN } from 'date-fns/locale'
 
 interface WuCardProps {
   wu: WuEntry
@@ -10,7 +10,7 @@ interface WuCardProps {
 }
 
 export default function WuCard({ wu, showFull = false }: WuCardProps) {
-  const formattedDate = format(new Date(wu.date), 'yyyy年MM月dd日 EEEE', { locale: zhTW })
+  const formattedDate = format(new Date(wu.date), 'yyyy年MM月dd日 EEEE', { locale: zhCN })
 
   return (
     <article className="border border-terminal-dim/30 rounded-lg p-4 md:p-6 hover:border-terminal-fg/50 transition-all">
@@ -53,7 +53,7 @@ export default function WuCard({ wu, showFull = false }: WuCardProps) {
 
             {wu.sources.news && wu.sources.news.length > 0 && (
               <div>
-                <span className="text-terminal-cyan">[新聞]</span>
+                <span className="text-terminal-cyan">[新闻]</span>
                 <ul className="ml-4 mt-1 space-y-0.5">
                   {wu.sources.news.map((item, i) => (
                     <li key={i} className="text-terminal-dim">

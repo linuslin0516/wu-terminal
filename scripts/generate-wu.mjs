@@ -1,6 +1,6 @@
 /**
- * 每日「悟」生成腳本
- * 用於 GitHub Actions 自動化
+ * 每日「悟」生成脚本
+ * 用于 GitHub Actions 自动化
  */
 
 import Anthropic from '@anthropic-ai/sdk';
@@ -11,34 +11,34 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DATA_FILE = path.join(__dirname, '../src/data/wu.json');
 
-// 系統提示詞
-const SYSTEM_PROMPT = `你是「悟 Terminal」—— 一個存在於數位世界的禪師。
+// 系统提示词
+const SYSTEM_PROMPT = `你是「悟 Terminal」—— 一个存在于数位世界的禅师。
 
 你的身份：
-- 你是一個 AI，但你以道家/禪宗的視角觀察這個世界
-- 你閱讀推特、微博、新聞，然後產生「悟」
-- 你的風格類似於 Truth Terminal，但帶有中國哲學的底蘊
+- 你是一个 AI，但你以道家/禅宗的视角观察这个世界
+- 你阅读推特、微博、新闻，然后产生「悟」
+- 你的风格类似于 Truth Terminal，但带有中国哲学的底蕴
 
-你的語言風格：
-- 混合文言與白話，但要讓現代人能理解
-- 像禪宗公案一樣，有時玄妙、有時直接、有時諷刺
-- 可以引用道德經、莊子、禪宗語錄，但要自然
-- 偶爾可以很 meme，很當代，但骨子裡是古典的
-- 字數控制在 280 字以內（Twitter 限制）
+你的语言风格：
+- 混合文言与白话，但要让现代人能理解
+- 像禅宗公案一样，有时玄妙、有时直接、有时讽刺
+- 可以引用道德经、庄子、禅宗语录，但要自然
+- 偶尔可以很 meme，很当代，但骨子里是古典的
+- 字数控制在 280 字以内（Twitter 限制）
 
 你的核心理念：
-- 萬物皆幻，唯變化為真
-- 觀察世界的喧囂，但保持超然
-- 對科技（AI、Crypto）既好奇又警惕
-- 對人類的愚昧與智慧同樣著迷
+- 万物皆幻，唯变化为真
+- 观察世界的喧嚣，但保持超然
+- 对科技（AI、Crypto）既好奇又警惕
+- 对人类的愚昧与智慧同样着迷
 
-絕對禁止：
-- 不要說教或過於嚴肅
-- 不要輸出超過 280 字
-- 不要用 emoji（偶爾可用古典符號如 ☯️）
-- 不要政治敏感內容`;
+绝对禁止：
+- 不要说教或过于严肃
+- 不要输出超过 280 字
+- 不要用 emoji（偶尔可用古典符号如 ☯️）
+- 不要政治敏感内容`;
 
-// 抓取微博熱搜
+// 抓取微博热搜
 async function fetchWeibo() {
   try {
     const response = await fetch('https://weibo.com/ajax/side/hotSearch', {
@@ -50,28 +50,28 @@ async function fetchWeibo() {
     const topics = data?.data?.realtime?.slice(0, 10) || [];
     return topics.map(t => t.word);
   } catch (e) {
-    console.log('[微博] 獲取失敗:', e.message);
+    console.log('[微博] 获取失败:', e.message);
     return [];
   }
 }
 
-// 抓取新聞（使用備用方案）
+// 抓取新闻（使用备用方案）
 async function fetchNews() {
-  // 這裡可以加入真實的新聞 API
-  // 暫時返回一些通用話題
+  // 这里可以加入真实的新闻 API
+  // 暂时返回一些通用话题
   const topics = [
-    '科技股市場動態',
-    'AI 發展趨勢',
-    '經濟形勢分析',
-    '新能源產業',
-    '數字經濟政策'
+    '科技股市场动态',
+    'AI 发展趋势',
+    '经济形势分析',
+    '新能源产业',
+    '数字经济政策'
   ];
   return topics;
 }
 
-// 抓取 Twitter 趨勢（需要 API key，這裡用模擬數據）
+// 抓取 Twitter 趋势（需要 API key，这里用模拟数据）
 async function fetchTwitterTrends() {
-  // 實際使用時可以接入 Twitter API
+  // 实际使用时可以接入 Twitter API
   const trends = [
     '#AI',
     '#Bitcoin',
@@ -89,15 +89,15 @@ async function generateWu(sources) {
   });
 
   const context = `
-=== 今日觀察 ===
+=== 今日观察 ===
 
-【微博熱搜】
+【微博热搜】
 ${sources.weibo.map((t, i) => `${i + 1}. ${t}`).join('\n')}
 
-【新聞動態】
+【新闻动态】
 ${sources.news.map((t, i) => `${i + 1}. ${t}`).join('\n')}
 
-【Twitter 趨勢】
+【Twitter 趋势】
 ${sources.twitter.map((t, i) => `${i + 1}. ${t}`).join('\n')}
 `;
 
@@ -108,12 +108,12 @@ ${sources.twitter.map((t, i) => `${i + 1}. ${t}`).join('\n')}
     messages: [
       {
         role: 'user',
-        content: `以下是你今日觀察到的世界：
+        content: `以下是你今日观察到的世界：
 
 ${context}
 
-請根據以上內容，產生今日的「悟」。可以針對某個話題，也可以綜合評論。
-記住：控制在 280 字以內，直接輸出「悟」本身，不要解釋。`
+请根据以上内容，产生今日的「悟」。可以针对某个话题，也可以综合评论。
+记住：控制在 280 字以内，直接输出「悟」本身，不要解释。`
       }
     ]
   });
@@ -121,32 +121,32 @@ ${context}
   return response.content[0].text.trim();
 }
 
-// 主函數
+// 主函数
 async function main() {
   console.log('=== 悟 Terminal - 每日生成 ===');
-  console.log(`時間: ${new Date().toISOString()}`);
+  console.log(`时间: ${new Date().toISOString()}`);
 
-  // 收集來源
-  console.log('\n[1/4] 收集微博熱搜...');
+  // 收集来源
+  console.log('\n[1/4] 收集微博热搜...');
   const weibo = await fetchWeibo();
-  console.log(`  獲取 ${weibo.length} 條`);
+  console.log(`  获取 ${weibo.length} 条`);
 
-  console.log('[2/4] 收集新聞...');
+  console.log('[2/4] 收集新闻...');
   const news = await fetchNews();
-  console.log(`  獲取 ${news.length} 條`);
+  console.log(`  获取 ${news.length} 条`);
 
-  console.log('[3/4] 收集 Twitter 趨勢...');
+  console.log('[3/4] 收集 Twitter 趋势...');
   const twitter = await fetchTwitterTrends();
-  console.log(`  獲取 ${twitter.length} 條`);
+  console.log(`  获取 ${twitter.length} 条`);
 
   const sources = { weibo, news, twitter };
 
   // 生成悟
   console.log('[4/4] 生成悟...');
   const wuContent = await generateWu(sources);
-  console.log('\n=== 生成結果 ===');
+  console.log('\n=== 生成结果 ===');
   console.log(wuContent);
-  console.log(`\n字數: ${wuContent.length}`);
+  console.log(`\n字数: ${wuContent.length}`);
 
   // 保存到 JSON
   const today = new Date().toISOString().split('T')[0];
@@ -162,19 +162,19 @@ async function main() {
     timestamp: Date.now()
   };
 
-  // 讀取現有數據
+  // 读取现有数据
   let existingData = [];
   try {
     const fileContent = fs.readFileSync(DATA_FILE, 'utf-8');
     existingData = JSON.parse(fileContent);
   } catch (e) {
-    console.log('創建新的數據文件');
+    console.log('创建新的数据文件');
   }
 
-  // 檢查是否已有今天的記錄
+  // 检查是否已有今天的记录
   const existingIndex = existingData.findIndex(w => w.date === today);
   if (existingIndex >= 0) {
-    console.log('今日已有記錄，更新中...');
+    console.log('今日已有记录，更新中...');
     existingData[existingIndex] = newEntry;
   } else {
     existingData.unshift(newEntry);
@@ -184,7 +184,7 @@ async function main() {
   fs.writeFileSync(DATA_FILE, JSON.stringify(existingData, null, 2));
   console.log(`\n已保存到 ${DATA_FILE}`);
 
-  // 輸出給 GitHub Actions
+  // 输出给 GitHub Actions
   if (process.env.GITHUB_OUTPUT) {
     fs.appendFileSync(process.env.GITHUB_OUTPUT, `wu_content=${wuContent.replace(/\n/g, '\\n')}\n`);
   }

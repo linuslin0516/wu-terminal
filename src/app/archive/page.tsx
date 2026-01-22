@@ -55,8 +55,8 @@ export default function ArchivePage() {
         <div className="text-center py-16">
           <div className="text-terminal-dim">
             <p>$ cat /dev/null</p>
-            <p className="mt-4 text-terminal-warning">尚無悟語</p>
-            <p className="mt-2">等待觀察世界中...</p>
+            <p className="mt-4 text-terminal-warning">尚无悟语</p>
+            <p className="mt-2">等待观察世界中...</p>
           </div>
         </div>
       )}

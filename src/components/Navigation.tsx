@@ -7,8 +7,8 @@ export default function Navigation() {
   const pathname = usePathname()
 
   const links = [
-    { href: '/', label: '首頁', cmd: 'home' },
-    { href: '/archive', label: '歷史', cmd: 'archive' },
+    { href: '/', label: '首页', cmd: 'home' },
+    { href: '/archive', label: '历史', cmd: 'archive' },
   ]
 
   return (

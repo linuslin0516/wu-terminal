@@ -20,9 +20,9 @@ export default function Home() {
       {/* System Info */}
       <div className="mb-8 text-terminal-dim text-xs space-y-1">
         <div><span className="text-terminal-accent">$</span> uname -a</div>
-        <div className="ml-4">WuTerminal v1.0.0 | 觀察者模式已啟動 | 連接：微博/新聞/Twitter</div>
+        <div className="ml-4">WuTerminal v1.0.0 | 观察者模式已启动 | 连接：微博/新闻/Twitter</div>
         <div><span className="text-terminal-accent">$</span> date</div>
-        <div className="ml-4">{new Date().toLocaleString('zh-TW')}</div>
+        <div className="ml-4">{new Date().toLocaleString('zh-CN')}</div>
       </div>
 
       {/* Stats */}
@@ -64,7 +64,7 @@ export default function Home() {
           className="inline-flex items-center gap-2 text-terminal-accent hover:glow-accent transition-all"
         >
           <span className="text-terminal-fg">$</span> cat --all
-          <span className="text-terminal-dim">查看全部歷史 →</span>
+          <span className="text-terminal-dim">查看全部历史 →</span>
         </Link>
       </div>
 
@@ -77,7 +77,7 @@ export default function Home() {
  /  |  \\
 /   |   \\`}
         </pre>
-        <p>悟 Terminal - 觀萬物之變，悟道之常</p>
+        <p>悟 Terminal - 观万物之变，悟道之常</p>
         <p className="mt-2">Powered by Claude AI | Built with Next.js</p>
         <p className="mt-2 text-terminal-dim/50">
           <span className="text-terminal-accent">$</span> echo &quot;道在日常&quot;
